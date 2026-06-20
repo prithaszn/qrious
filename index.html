@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Qrious</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #faf8ff; min-height: 100vh; overflow-x: hidden; }
+
+    .bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; }
+    .blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.5; }
+    .blob1 { width: 600px; height: 600px; background: #e8d5ff; top: -150px; left: -150px; }
+    .blob2 { width: 500px; height: 500px; background: #d5eeff; bottom: -100px; right: -100px; }
+    .blob3 { width: 350px; height: 350px; background: #ffd5e8; top: 45%; left: 45%; }
+
+    .page { display: none; min-height: 100vh; position: relative; z-index: 1; }
+    .page.active { display: flex; flex-direction: column; }
+
+    nav {
+      padding: 18px 40px; display: flex; align-items: center; justify-content: space-between;
+      background: rgba(255,255,255,0.6); backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.8); position: relative; z-index: 10;
+    }
+    .logo { display: flex; align-items: center; cursor: pointer; }
+    .logo-text { font-size: 20px; font-weight: 800; color: #3b1f6e; letter-spacing: -0.5px; }
+    .nav-btns { display: flex; gap: 10px; align-items: center; }
+    .btn-outline {
+      padding: 9px 20px; border-radius: 20px; font-size: 13px; font-weight: 600;
+      background: transparent; border: 1.5px solid rgba(192,132,252,0.4);
+      color: #7c3aed; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.2s;
+    }
+    .btn-outline:hover { background: rgba(192,132,252,0.1); }
+    .btn-fill {
+      padding: 9px 20px; border-radius: 20px; font-size: 13px; font-weight: 600;
+      background: linear-gradient(135deg, #c084fc, #818cf8);
+      border: none; color: white; cursor: pointer; font-family: 'Inter', sans-serif;
+      box-shadow: 0 4px 12px rgba(192,132,252,0.35); transition: all 0.2s;
+    }
+    .btn-fill:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(192,132,252,0.45); }
+
+    /* LANDING */
+    .hero {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 60px 24px; text-align: center;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 16px; border-radius: 20px;
+      background: rgba(192,132,252,0.1); border: 1px solid rgba(192,132,252,0.25);
+      font-size: 12px; font-weight: 600; color: #7c3aed;
+      margin-bottom: 28px; letter-spacing: 0.3px;
+    }
+    .hero h1 {
+      font-size: clamp(48px, 8vw, 80px); font-weight: 800;
+      color: #1a0a3e; letter-spacing: -2px; line-height: 1.1; margin-bottom: 20px;
+    }
+    .hero h1 span {
+      background: linear-gradient(135deg, #c084fc, #818cf8);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero p { font-size: 18px; color: #7c6f9a; max-width: 520px; line-height: 1.7; margin-bottom: 40px; }
+    .hero-btns { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+    .hero-btn-main {
+      padding: 14px 32px; border-radius: 50px; font-size: 15px; font-weight: 700;
+      background: linear-gradient(135deg, #c084fc, #818cf8);
+      border: none; color: white; cursor: pointer; font-family: 'Inter', sans-serif;
+      box-shadow: 0 6px 24px rgba(192,132,252,0.4); transition: all 0.2s;
+    }
+    .hero-btn-main:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(192,132,252,0.5); }
+    .hero-btn-sec {
+      padding: 14px 32px; border-radius: 50px; font-size: 15px; font-weight: 700;
+      background: rgba(255,255,255,0.7); border: 1.5px solid rgba(192,132,252,0.3);
+      color: #7c3aed; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.2s;
+    }
+    .hero-btn-sec:hover { background: rgba(255,255,255,0.95); }
+
+    /* AUTH */
+    .auth-wrap { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 24px; }
+    .auth-card {
+      width: 100%; max-width: 420px;
+      background: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.9);
+      border-radius: 24px; padding: 44px 40px;
+      box-shadow: 0 16px 48px rgba(180,150,255,0.15);
+    }
+    .auth-card h2 { font-size: 26px; font-weight: 800; color: #1a0a3e; margin-bottom: 6px; letter-spacing: -0.5px; }
+    .auth-card p { font-size: 13px; color: #9c86b8; margin-bottom: 28px; }
+    .field { margin-bottom: 16px; }
+    .field label { font-size: 11px; font-weight: 700; color: #9c86b8; letter-spacing: 0.8px; text-transform: uppercase; display: block; margin-bottom: 7px; }
+    .field input {
+      width: 100%; padding: 13px 16px; border-radius: 12px; font-size: 14px;
+      background: rgba(255,255,255,0.8); border: 1.5px solid rgba(192,132,252,0.2);
+      color: #1a0a3e; font-family: 'Inter', sans-serif; outline: none; transition: all 0.2s;
+    }
+    .field input:focus { border-color: rgba(192,132,252,0.6); background: #fff; }
+    .field input::placeholder { color: #c4b5e0; }
+    .auth-submit {
+      width: 100%; padding: 14px; border-radius: 12px; font-size: 14px; font-weight: 700;
+      background: linear-gradient(135deg, #c084fc, #818cf8);
+      border: none; color: white; cursor: pointer; font-family: 'Inter', sans-serif;
+      box-shadow: 0 4px 16px rgba(192,132,252,0.4); margin-top: 8px; transition: all 0.2s;
+    }
+    .auth-submit:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(192,132,252,0.5); }
+    .auth-switch { text-align: center; margin-top: 20px; font-size: 13px; color: #9c86b8; }
+    .auth-switch a { color: #7c3aed; font-weight: 600; cursor: pointer; text-decoration: none; }
+    .auth-error {
+      background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2);
+      border-radius: 10px; padding: 11px 14px; font-size: 13px; color: #dc2626;
+      margin-bottom: 16px; display: none;
+    }
+
+    /* CHAT */
+    #chatPage { flex-direction: column; }
+    .chat-nav {
+      padding: 16px 28px; display: flex; align-items: center; justify-content: space-between;
+      background: rgba(255,255,255,0.6); backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.8); position: relative; z-index: 10;
+    }
+    .user-greeting {
+      font-size: 13px; font-weight: 600; color: #7c3aed;
+      background: rgba(192,132,252,0.1); border: 1px solid rgba(192,132,252,0.2);
+      padding: 7px 16px; border-radius: 20px;
+    }
+    .chat-main {
+      flex: 1; max-width: 780px; width: 100%; margin: 0 auto;
+      padding: 28px 20px 20px; position: relative; z-index: 5;
+    }
+    .welcome-chat { text-align: center; padding: 40px 20px 24px; }
+    .welcome-chat h2 { font-size: 28px; font-weight: 800; color: #1a0a3e; letter-spacing: -0.5px; margin-bottom: 6px; }
+    .welcome-chat p { font-size: 14px; color: #9c86b8; }
+    .cap-grid {
+      display: flex; flex-wrap: wrap; justify-content: center;
+      gap: 10px; max-width: 600px; margin: 24px auto 0;
+    }
+    .cap-card {
+      width: 140px; flex-shrink: 0;
+      background: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.9);
+      border-radius: 14px; padding: 16px 12px; text-align: center; cursor: pointer;
+      transition: all 0.2s; box-shadow: 0 3px 12px rgba(180,150,255,0.08);
+    }
+    .cap-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(180,150,255,0.18); background: rgba(255,255,255,0.95); }
+    .cap-icon { font-size: 22px; margin-bottom: 6px; }
+    .cap-label { font-size: 12px; font-weight: 700; color: #3b1f6e; }
+    .cap-desc { font-size: 11px; color: #b8a8d0; margin-top: 2px; }
+
+    /* Input box */
+    .input-box {
+      display: flex; align-items: flex-end;
+      background: #fff; border: 2px solid rgba(192,132,252,0.4);
+      border-radius: 20px; padding: 8px 8px 8px 14px;
+      box-shadow: 0 4px 24px rgba(192,132,252,0.18); transition: border-color 0.2s;
+    }
+    .input-box:focus-within { border-color: rgba(192,132,252,0.7); }
+    .input-box textarea {
+      flex: 1; background: transparent; border: none;
+      font-size: 14px; color: #2d1b5e; font-family: 'Inter', sans-serif;
+      resize: none; outline: none; max-height: 140px; line-height: 1.5;
+      padding: 6px 4px; align-self: center;
+    }
+    .input-box textarea::placeholder { color: #c4b5e0; }
+    .input-actions { display: flex; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+
+    .upload-btn {
+      width: 38px; height: 38px; border-radius: 11px; border: none;
+      background: rgba(192,132,252,0.1); color: #9c86b8;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; flex-shrink: 0;
+    }
+    .upload-btn:hover { background: rgba(192,132,252,0.2); color: #7c3aed; }
+    .upload-btn.has-image { background: rgba(192,132,252,0.25); color: #7c3aed; }
+    .upload-btn svg { pointer-events: none; }
+
+    .send-btn {
+      width: 38px; height: 38px; border-radius: 11px;
+      background: linear-gradient(135deg, #c084fc, #818cf8);
+      border: none; color: white; font-size: 15px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 3px 10px rgba(192,132,252,0.4); transition: all 0.2s; flex-shrink: 0;
+    }
+    .send-btn:hover { transform: translateY(-1px); }
+    .send-btn:disabled { opacity: 0.4; transform: none; cursor: not-allowed; }
+
+    .floating-input { max-width: 680px; margin: 28px auto 0; padding: 0 20px; }
+
+    /* Image preview pill */
+    .image-preview-wrap { max-width: 680px; margin: 10px auto 0; padding: 0 20px; display: none; }
+    .image-preview-wrap.visible { display: flex; }
+    .image-preview-pill {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.85); border: 1.5px solid rgba(192,132,252,0.3);
+      border-radius: 12px; padding: 6px 12px;
+      font-size: 12px; font-weight: 600; color: #7c3aed;
+      box-shadow: 0 2px 10px rgba(192,132,252,0.12);
+    }
+    .image-preview-pill img { width: 32px; height: 32px; border-radius: 7px; object-fit: cover; }
+    .image-preview-pill .remove-img { cursor: pointer; color: #c084fc; font-size: 14px; margin-left: 4px; transition: color 0.15s; }
+    .image-preview-pill .remove-img:hover { color: #dc2626; }
+
+    /* Fixed input bar */
+    .input-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 20;
+      padding: 10px 20px 18px; background: transparent; display: none;
+    }
+    .input-bar-inner { max-width: 780px; margin: 0 auto; }
+
+    .fixed-image-preview {
+      display: none; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.9); border: 1.5px solid rgba(192,132,252,0.3);
+      border-radius: 12px; padding: 6px 12px; margin-bottom: 8px;
+      font-size: 12px; font-weight: 600; color: #7c3aed;
+      box-shadow: 0 2px 10px rgba(192,132,252,0.12); width: fit-content;
+    }
+    .fixed-image-preview img { width: 32px; height: 32px; border-radius: 7px; object-fit: cover; }
+    .fixed-image-preview .remove-img { cursor: pointer; color: #c084fc; font-size: 14px; margin-left: 4px; transition: color 0.15s; }
+    .fixed-image-preview .remove-img:hover { color: #dc2626; }
+
+    /* Messages */
+    #messages { display: flex; flex-direction: column; gap: 18px; margin-top: 20px; }
+    .msg { display: flex; gap: 12px; align-items: flex-start; }
+    .msg.user { flex-direction: row-reverse; }
+    .avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; flex-shrink: 0;
+    }
+    .avatar.ai {
+      background: linear-gradient(135deg, #c084fc, #818cf8);
+      color: white; font-size: 14px; font-weight: 800;
+      box-shadow: 0 3px 10px rgba(192,132,252,0.35);
+    }
+    .avatar.user-av {
+      background: rgba(192,132,252,0.15);
+      border: 1.5px solid rgba(192,132,252,0.3);
+      color: #7c3aed; font-size: 13px; font-weight: 700;
+    }
+    .bubble { max-width: 80%; padding: 14px 18px; border-radius: 18px; font-size: 14px; line-height: 1.75; }
+    .bubble.ai {
+      background: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.95);
+      color: #2d1b5e; border-radius: 4px 18px 18px 18px;
+      box-shadow: 0 4px 16px rgba(180,150,255,0.12);
+    }
+    .bubble.user {
+      background: linear-gradient(135deg, #c084fc, #818cf8);
+      color: #fff; font-weight: 500; border-radius: 18px 4px 18px 18px;
+      box-shadow: 0 4px 16px rgba(192,132,252,0.35);
+    }
+    .bubble.user img.chat-img {
+      max-width: 220px; max-height: 180px; border-radius: 12px;
+      display: block; margin-bottom: 8px; object-fit: cover;
+      border: 2px solid rgba(255,255,255,0.4);
+    }
+    .bubble.warning {
+      background: rgba(254,226,226,0.9); border: 1.5px solid rgba(239,68,68,0.25);
+      color: #991b1b; border-radius: 4px 18px 18px 18px;
+      box-shadow: 0 4px 16px rgba(239,68,68,0.1);
+    }
+
+    .typing .bubble.ai { display: flex; gap: 5px; align-items: center; padding: 16px 20px; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: #c084fc; animation: bounce 1.2s infinite; }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+    pre {
+      background: rgba(59,31,110,0.06); border-radius: 10px; padding: 12px 14px;
+      overflow-x: auto; font-size: 12px; margin-top: 8px;
+      border: 1px solid rgba(192,132,252,0.15);
+    }
+  </style>
+</head>
+<body>
+
+<div class="bg">
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+  <div class="blob blob3"></div>
+</div>
+
+<!-- LANDING -->
+<div class="page active" id="landingPage">
+  <nav>
+    <div class="logo" onclick="showPage('landingPage')">
+      <span class="logo-text">Qrious</span>
+    </div>
+    <div class="nav-btns">
+      <button class="btn-outline" onclick="showPage('loginPage')">Log in</button>
+      <button class="btn-fill" onclick="showPage('signupPage')">Sign up free</button>
+    </div>
+  </nav>
+  <div class="hero">
+    <div class="hero-badge">✦ Powered by LangGraph + Groq</div>
+    <h1>Meet <span>Qrious</span>,<br/>Your AI companion</h1>
+    <p>Ask anything. Get instant answers from specialized agents — weather, news, math, code, and more.</p>
+    <div class="hero-btns">
+      <button class="hero-btn-main" onclick="showPage('signupPage')">Get started free →</button>
+      <button class="hero-btn-sec" onclick="showPage('loginPage')">I have an account</button>
+    </div>
+  </div>
+</div>
+
+<!-- SIGN UP -->
+<div class="page" id="signupPage">
+  <nav>
+    <div class="logo" onclick="showPage('landingPage')">
+      <span class="logo-text">Qrious</span>
+    </div>
+    <div class="nav-btns">
+      <span style="font-size:13px;color:#9c86b8;">Already have an account?</span>
+      <button class="btn-outline" onclick="showPage('loginPage')">Log in</button>
+    </div>
+  </nav>
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <h2>Create your account</h2>
+      <p>Join Qrious and start exploring</p>
+      <div class="auth-error" id="signupError"></div>
+      <div class="field"><label>Full Name</label><input type="text" id="signupName" placeholder="Pritha Ghosh"/></div>
+      <div class="field"><label>Email</label><input type="email" id="signupEmail" placeholder="you@example.com"/></div>
+      <div class="field"><label>Password</label><input type="password" id="signupPassword" placeholder="••••••••"/></div>
+      <button class="auth-submit" onclick="handleSignup()">Create account</button>
+      <div class="auth-switch">Already have an account? <a onclick="showPage('loginPage')">Log in</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div class="page" id="loginPage">
+  <nav>
+    <div class="logo" onclick="showPage('landingPage')">
+      <span class="logo-text">Qrious</span>
+    </div>
+    <div class="nav-btns">
+      <span style="font-size:13px;color:#9c86b8;">New to Qrious?</span>
+      <button class="btn-fill" onclick="showPage('signupPage')">Sign up free</button>
+    </div>
+  </nav>
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <h2>Welcome back</h2>
+      <p>Log in to continue with Qrious</p>
+      <div class="auth-error" id="loginError"></div>
+      <div class="field"><label>Email</label><input type="email" id="loginEmail" placeholder="you@example.com"/></div>
+      <div class="field"><label>Password</label><input type="password" id="loginPassword" placeholder="••••••••"/></div>
+      <button class="auth-submit" onclick="handleLogin()">Log in</button>
+      <div class="auth-switch">No account yet? <a onclick="showPage('signupPage')">Sign up free</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- CHAT -->
+<div class="page" id="chatPage">
+  <nav class="chat-nav">
+    <div class="logo" onclick="showPage('landingPage')">
+      <span class="logo-text">Qrious</span>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <div class="user-greeting" id="userGreeting">Hey!</div>
+      <button class="btn-outline" onclick="newChat()" style="font-size:12px;padding:7px 14px;">+ New Chat</button>
+      <button class="btn-outline" onclick="logout()" style="font-size:12px;padding:7px 14px;color:#dc2626;border-color:rgba(220,38,38,0.3);">Log out</button>
+    </div>
+  </nav>
+
+  <div class="chat-main" id="chatMain">
+    <div id="welcomeChat">
+      <div class="welcome-chat">
+        <h2 id="welcomeMsg">What can I help with?</h2>
+        <p>Powered by specialized agents — ask me anything, or upload an image</p>
+      </div>
+      <div class="cap-grid">
+        <div class="cap-card" onclick="sendSuggestion('What is the weather in Mumbai?')"><div class="cap-icon">🌤️</div><div class="cap-label">Weather</div><div class="cap-desc">Live forecasts</div></div>
+        <div class="cap-card" onclick="sendSuggestion('What is quantum computing?')"><div class="cap-icon">📚</div><div class="cap-label">Knowledge</div><div class="cap-desc">Wikipedia facts</div></div>
+        <div class="cap-card" onclick="sendSuggestion('What is 234 * 789?')"><div class="cap-icon">🧮</div><div class="cap-label">Math</div><div class="cap-desc">Calculations</div></div>
+        <div class="cap-card" onclick="sendSuggestion('What time is it in Tokyo?')"><div class="cap-icon">🕐</div><div class="cap-label">Time</div><div class="cap-desc">World clocks</div></div>
+        <div class="cap-card" onclick="sendSuggestion('Latest news about AI')"><div class="cap-icon">📰</div><div class="cap-label">News</div><div class="cap-desc">Live headlines</div></div>
+        <div class="cap-card" onclick="sendSuggestion('How do I reverse a string in Python?')"><div class="cap-icon">💻</div><div class="cap-label">Coding</div><div class="cap-desc">Programming help</div></div>
+        <div class="cap-card" onclick="triggerImageUpload('welcome')"><div class="cap-icon">🖼️</div><div class="cap-label">Image Scan</div><div class="cap-desc">Ask about any image</div></div>
+      </div>
+
+      <div class="image-preview-wrap" id="welcomeImagePreview">
+        <div class="image-preview-pill">
+          <img id="welcomePreviewImg" src="" alt="preview"/>
+          <span id="welcomePreviewName">image.jpg</span>
+          <span class="remove-img" onclick="clearImage('welcome')" title="Remove">✕</span>
+        </div>
+      </div>
+
+      <div class="floating-input">
+        <div class="input-box">
+          <textarea id="inputWelcome" placeholder="Ask Qrious anything..." rows="1"
+            onkeydown="handleKey(event, 'welcome')" oninput="autoResize(this)"></textarea>
+          <div class="input-actions">
+            <button class="upload-btn" id="uploadBtnWelcome" onclick="triggerImageUpload('welcome')" title="Upload image">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <polyline points="21 15 16 10 5 21"/>
+              </svg>
+            </button>
+            <button class="send-btn" id="sendBtnWelcome" onclick="sendMessage('welcome')">&#10148;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="messages"></div>
+  </div>
+
+  <!-- Fixed input bar -->
+  <div class="input-bar" id="inputBar">
+    <div class="input-bar-inner">
+      <div class="fixed-image-preview" id="fixedImagePreview">
+        <img id="fixedPreviewImg" src="" alt="preview"/>
+        <span id="fixedPreviewName">image.jpg</span>
+        <span class="remove-img" onclick="clearImage('fixed')" title="Remove">✕</span>
+      </div>
+      <div class="input-box">
+        <textarea id="inputChat" placeholder="Ask Qrious anything..." rows="1"
+          onkeydown="handleKey(event, 'fixed')" oninput="autoResize(this)"></textarea>
+        <div class="input-actions">
+          <button class="upload-btn" id="uploadBtnFixed" onclick="triggerImageUpload('fixed')" title="Upload image">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+          </button>
+          <button class="send-btn" id="sendBtnChat" onclick="sendMessage('fixed')">&#10148;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <input type="file" id="fileInput" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none" onchange="handleImageSelected(event)"/>
+</div>
+
+<script>
+  const API = 'http://localhost:8000';
+  const SESSION_ID = 'q_' + Math.random().toString(36).slice(2);
+  let isLoading = false;
+  let chatStarted = false;
+  let pendingImage = null;
+  let activeInputContext = 'welcome';
+  let userInitial = 'U';
+
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  window.onload = () => {
+    const token = localStorage.getItem('qrious_token');
+    const name = localStorage.getItem('qrious_name');
+    if (token && name) enterChat(name);
+  };
+
+  function enterChat(name) {
+    const first = name.split(' ')[0];
+    userInitial = first.charAt(0).toUpperCase();
+    document.getElementById('userGreeting').textContent = `Hey, ${first}!`;
+    document.getElementById('welcomeMsg').textContent = `Hey ${first}, what can I help with?`;
+    showPage('chatPage');
+  }
+
+  async function handleSignup() {
+    const name = document.getElementById('signupName').value.trim();
+    const email = document.getElementById('signupEmail').value.trim();
+    const password = document.getElementById('signupPassword').value;
+    const errEl = document.getElementById('signupError');
+    errEl.style.display = 'none';
+    if (!name || !email || !password) { showError(errEl, 'Please fill in all fields.'); return; }
+    try {
+      const res = await fetch(`${API}/auth/register`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password })
+      });
+      const data = await res.json();
+      if (!res.ok) { showError(errEl, data.detail || 'Registration failed.'); return; }
+      localStorage.setItem('qrious_token', data.token);
+      localStorage.setItem('qrious_name', data.name);
+      enterChat(data.name);
+    } catch { showError(errEl, 'Could not connect to server.'); }
+  }
+
+  async function handleLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const errEl = document.getElementById('loginError');
+    errEl.style.display = 'none';
+    if (!email || !password) { showError(errEl, 'Please fill in all fields.'); return; }
+    try {
+      const res = await fetch(`${API}/auth/login`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (!res.ok) { showError(errEl, data.detail || 'Login failed.'); return; }
+      localStorage.setItem('qrious_token', data.token);
+      localStorage.setItem('qrious_name', data.name);
+      enterChat(data.name);
+    } catch { showError(errEl, 'Could not connect to server.'); }
+  }
+
+  function showError(el, msg) { el.textContent = msg; el.style.display = 'block'; }
+
+  function logout() {
+    localStorage.removeItem('qrious_token');
+    localStorage.removeItem('qrious_name');
+    document.getElementById('messages').innerHTML = '';
+    document.getElementById('welcomeChat').style.display = 'block';
+    document.getElementById('inputBar').style.display = 'none';
+    chatStarted = false;
+    userInitial = 'U';
+    clearImage('welcome');
+    clearImage('fixed');
+    showPage('landingPage');
+  }
+
+  function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 140) + 'px'; }
+  function handleKey(e, ctx) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(ctx); } }
+  function sendSuggestion(text) { document.getElementById('inputWelcome').value = text; sendMessage('welcome'); }
+
+  function triggerImageUpload(ctx) {
+    activeInputContext = ctx;
+    document.getElementById('fileInput').value = '';
+    document.getElementById('fileInput').click();
+  }
+
+  function handleImageSelected(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) { alert('Image too large. Please upload under 10MB.'); return; }
+    const objectURL = URL.createObjectURL(file);
+    pendingImage = { file, objectURL, name: file.name };
+    if (activeInputContext === 'welcome') {
+      document.getElementById('welcomePreviewImg').src = objectURL;
+      document.getElementById('welcomePreviewName').textContent = file.name;
+      document.getElementById('welcomeImagePreview').classList.add('visible');
+      document.getElementById('uploadBtnWelcome').classList.add('has-image');
+      document.getElementById('inputWelcome').placeholder = 'Ask something about this image...';
+      document.getElementById('inputWelcome').focus();
+    } else {
+      document.getElementById('fixedPreviewImg').src = objectURL;
+      document.getElementById('fixedPreviewName').textContent = file.name;
+      document.getElementById('fixedImagePreview').style.display = 'flex';
+      document.getElementById('uploadBtnFixed').classList.add('has-image');
+      document.getElementById('inputChat').placeholder = 'Ask something about this image...';
+      document.getElementById('inputChat').focus();
+    }
+  }
+
+  function clearImage(ctx) {
+    if (pendingImage) { URL.revokeObjectURL(pendingImage.objectURL); pendingImage = null; }
+    if (ctx === 'welcome') {
+      document.getElementById('welcomeImagePreview').classList.remove('visible');
+      document.getElementById('uploadBtnWelcome').classList.remove('has-image');
+      document.getElementById('inputWelcome').placeholder = 'Ask Qrious anything...';
+    } else {
+      document.getElementById('fixedImagePreview').style.display = 'none';
+      document.getElementById('uploadBtnFixed').classList.remove('has-image');
+      document.getElementById('inputChat').placeholder = 'Ask Qrious anything...';
+    }
+  }
+
+  function switchToFixedInput() {
+    if (!chatStarted) {
+      chatStarted = true;
+      document.getElementById('welcomeChat').style.display = 'none';
+      document.getElementById('inputBar').style.display = 'block';
+      document.getElementById('chatMain').style.paddingBottom = '100px';
+    }
+  }
+
+  function appendMessage(role, text, imageURL, isWarning) {
+    switchToFixedInput();
+    const container = document.getElementById('messages');
+    const msg = document.createElement('div');
+    msg.className = `msg ${role}`;
+
+    const avatar = document.createElement('div');
+    if (role === 'ai') {
+      avatar.className = 'avatar ai';
+      avatar.textContent = 'Q';
+    } else {
+      avatar.className = 'avatar user-av';
+      avatar.textContent = userInitial;
+    }
+
+    const bubble = document.createElement('div');
+    bubble.className = isWarning ? 'bubble warning' : `bubble ${role === 'ai' ? 'ai' : 'user'}`;
+
+    if (imageURL && role === 'user') {
+      const img = document.createElement('img');
+      img.src = imageURL;
+      img.className = 'chat-img';
+      bubble.appendChild(img);
+    }
+
+    const formatted = text.replace(/```(\w+)?\n?([\s\S]*?)```/g, (_, lang, code) =>
+      `<pre>${code.trim()}</pre>`).replace(/\n/g, '<br>');
+    const content = document.createElement('div');
+    content.innerHTML = formatted;
+    bubble.appendChild(content);
+    msg.appendChild(avatar);
+    msg.appendChild(bubble);
+    container.appendChild(msg);
+    msg.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  }
+
+  function showTyping() {
+    switchToFixedInput();
+    const container = document.getElementById('messages');
+    const msg = document.createElement('div');
+    msg.className = 'msg typing'; msg.id = 'typing';
+    msg.innerHTML = `<div class="avatar ai">Q</div><div class="bubble ai"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+    container.appendChild(msg);
+    msg.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  }
+
+  function removeTyping() { const t = document.getElementById('typing'); if (t) t.remove(); }
+
+  function setLoading(val) {
+    isLoading = val;
+    ['sendBtnWelcome','sendBtnChat','uploadBtnWelcome','uploadBtnFixed'].forEach(id => {
+      document.getElementById(id).disabled = val;
+    });
+  }
+
+  async function sendMessage(ctx) {
+    if (isLoading) return;
+    const inputId = ctx === 'welcome' ? 'inputWelcome' : 'inputChat';
+    const input = document.getElementById(inputId);
+    const text = input.value.trim();
+    if (!text && !pendingImage) return;
+
+    const imageSnapshot = pendingImage;
+    const imageURL = imageSnapshot ? imageSnapshot.objectURL : null;
+
+    input.value = ''; input.style.height = 'auto';
+
+    pendingImage = null;
+    if (ctx === 'welcome') {
+      document.getElementById('welcomeImagePreview').classList.remove('visible');
+      document.getElementById('uploadBtnWelcome').classList.remove('has-image');
+      document.getElementById('inputWelcome').placeholder = 'Ask Qrious anything...';
+    } else {
+      document.getElementById('fixedImagePreview').style.display = 'none';
+      document.getElementById('uploadBtnFixed').classList.remove('has-image');
+      document.getElementById('inputChat').placeholder = 'Ask Qrious anything...';
+    }
+
+    setLoading(true);
+    appendMessage('user', text || '', imageURL);
+    showTyping();
+
+    try {
+      let data;
+      if (imageSnapshot) {
+        const form = new FormData();
+        form.append('session_id', SESSION_ID);
+        form.append('message', text || 'Describe this image in detail.');
+        form.append('image', imageSnapshot.file);
+        const res = await fetch(`${API}/chat-with-image`, { method: 'POST', body: form });
+        data = await res.json();
+      } else {
+        const res = await fetch(`${API}/chat`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ session_id: SESSION_ID, message: text })
+        });
+        data = await res.json();
+      }
+      removeTyping();
+      appendMessage('ai', data.response, null, data.warning === true);
+    } catch {
+      removeTyping();
+      appendMessage('ai', 'Could not connect to Qrious. Make sure the backend is running.');
+    }
+
+    if (imageURL) setTimeout(() => URL.revokeObjectURL(imageURL), 10000);
+
+    setLoading(false);
+    if (chatStarted) document.getElementById('inputChat').focus();
+  }
+
+  async function newChat() {
+    await fetch(`${API}/reset`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: SESSION_ID, message: '' })
+    });
+    document.getElementById('messages').innerHTML = '';
+    document.getElementById('welcomeChat').style.display = 'block';
+    document.getElementById('inputBar').style.display = 'none';
+    document.getElementById('chatMain').style.paddingBottom = '20px';
+    clearImage('welcome'); clearImage('fixed');
+    chatStarted = false;
+  }
+</script>
+</body>
+</html>
